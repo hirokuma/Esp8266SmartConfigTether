@@ -6,18 +6,18 @@ package com.espressif.iot.esptouch.task;
  *
  */
 public interface ICodeData {
-	/**
-	 * Get the byte[] to be transformed.
-	 * 
-	 * 
-	 * @return the byte[] to be transfromed
-	 */
-	byte[] getBytes();
+    /**
+     * Get the byte[] to be transformed.
+     * 
+     * 
+     * @return the byte[] to be transfromed
+     */
+    byte[] getBytes();
 
-	/**
-	 * Get the char[](u8[]) to be transfromed.
-	 * 
-	 * @return the char[](u8) to be transformed
-	 */
-	char[] getU8s();
+    /**
+     * Get the char[](u8[]) to be transfromed.
+     * 
+     * @return the char[](u8) to be transformed
+     */
+    char[] getU8s();
 }
