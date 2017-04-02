@@ -2,10 +2,12 @@ package com.espressif.iot.esptouch.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 import com.espressif.iot.esptouch.task.__IEsptouchTask;
 
@@ -20,21 +22,45 @@ import android.util.Log;
 public class UDPSocketClient {
 
     private static final String TAG = "UDPSocketClient";
-    private DatagramSocket mSocket;
+    private MulticastSocket mSocket;
     private volatile boolean mIsStop;
     private volatile boolean mIsClosed;
 
     public UDPSocketClient() {
         try {
-            this.mSocket = new DatagramSocket();
+            this.mSocket = new MulticastSocket();
+            this.mSocket.setNetworkInterface(getWlanEth());
             this.mIsStop = false;
             this.mIsClosed = false;
-        } catch (SocketException e) {
+        } catch (IOException e) {
             if (__IEsptouchTask.DEBUG) {
                 Log.e(TAG, "SocketException");
             }
             e.printStackTrace();
         }
+    }
+
+    //http://stackoverflow.com/questions/6550618/multicast-support-on-android-in-hotspot-tethering-mode
+    private static NetworkInterface getWlanEth() {
+        Enumeration<NetworkInterface> enumeration = null;
+        try {
+            enumeration = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        NetworkInterface wlan0 = null;
+        StringBuilder sb = new StringBuilder();
+        while (enumeration.hasMoreElements()) {
+            wlan0 = enumeration.nextElement();
+            sb.append(wlan0.getName()).append(" ");
+            if (wlan0.getName().equals("wlan0")) {
+                //there is probably a better way to find ethernet interface
+                Log.i(TAG, "wlan0 found");
+                return wlan0;
+            }
+        }
+
+        return null;
     }
 
     @Override

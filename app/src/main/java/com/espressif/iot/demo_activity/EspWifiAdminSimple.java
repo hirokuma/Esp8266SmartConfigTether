@@ -2,6 +2,8 @@ package com.espressif.iot.demo_activity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.NetworkInterface;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -113,7 +115,38 @@ class EspWifiAdminSimple {
         if (mWifiInfo != null && isWifiConnected()) {
             bssid = mWifiInfo.getBSSID();
         }
+        if (bssid == null) {
+            bssid = getLocalMacAddr();
+        }
         return bssid;
+    }
+
+    //http://stackoverflow.com/questions/33159224/getting-mac-address-in-android-6-0
+    private static String getLocalMacAddr() {
+        try {
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
+
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    return "";
+                }
+
+                StringBuilder res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(Integer.toHexString(b & 0xFF)).append(":");
+                }
+
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+                return res1.toString();
+            }
+        } catch (Exception ex) {
+            //handle exception
+        }
+        return "";
     }
 
     // get the wifi info which is "connected" in wifi-setting
